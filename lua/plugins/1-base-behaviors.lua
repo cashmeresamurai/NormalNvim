@@ -26,7 +26,7 @@
 --       -> hot-reload.nvim        [config reload]
 --       -> distroupdate.nvim      [distro update]
 
-local is_android = vim.fn.isdirectory('/data') == 1 -- true if on android
+local is_android = vim.fn.isdirectory("/data") == 1 -- true if on android
 
 return {
 
@@ -38,8 +38,8 @@ return {
     event = "User BaseDefered",
     cmd = { "Yazi", "Yazi cwd", "Yazi toggle" },
     opts = {
-        open_for_directories = true,
-        floating_window_scaling_factor = (is_android and 1.0) or 0.71
+      open_for_directories = true,
+      floating_window_scaling_factor = (is_android and 1.0) or 0.71,
     },
   },
 
@@ -60,19 +60,19 @@ return {
         "Makefile",
         "package.json",
         ".solution",
-        ".solution.toml"
+        ".solution.toml",
       },
       -- Don't list the next projects
       exclude_dirs = {
-        "~/"
+        "~/",
       },
       silent_chdir = true,
       manual_mode = false,
 
       -- Don't chdir for certain buffers
       exclude_chdir = {
-        filetype = {"", "OverseerList", "alpha"},
-        buftype = {"nofile", "terminal"},
+        filetype = { "", "OverseerList", "alpha" },
+        buftype = { "nofile", "terminal" },
       },
 
       --ignore_lsp = { "lua_ls" },
@@ -101,7 +101,7 @@ return {
   {
     "stevearc/stickybuf.nvim",
     event = "User BaseDefered",
-    config = function() require("stickybuf").setup() end
+    config = function() require("stickybuf").setup() end,
   },
 
   -- mini.bufremove [smart bufdelete]
@@ -109,7 +109,7 @@ return {
   -- Defines what tab to go on :bufdelete
   {
     "echasnovski/mini.bufremove",
-    event = "User BaseFile"
+    event = "User BaseFile",
   },
 
   --  smart-splits [move and resize buffers]
@@ -130,7 +130,7 @@ return {
     event = "User BaseDefered",
     opts = {
       timeout = 300,
-    }
+    },
   },
 
   -- Toggle floating terminal on <F7> [term]
@@ -169,7 +169,7 @@ return {
     event = "User BaseDefered",
     cmd = "SessionManager",
     opts = function()
-      local config = require('session_manager.config')
+      local config = require("session_manager.config")
       return {
         autoload_mode = config.AutoloadMode.Disabled,
         autosave_last_session = false,
@@ -177,7 +177,7 @@ return {
       }
     end,
     config = function(_, opts)
-      local session_manager = require('session_manager')
+      local session_manager = require("session_manager")
       session_manager.setup(opts)
 
       -- Auto save session
@@ -192,7 +192,7 @@ return {
       --     session_manager.save_current_session()
       --   end
       -- })
-    end
+    end,
   },
 
   -- spectre.nvim [search and replace in project]
@@ -209,11 +209,11 @@ return {
         find = {
           -- pick one of item in find_engine [ fd, rg ]
           cmd = "fd",
-          options = {}
+          options = {},
         },
         replace = {
           -- pick one of item in [ sed, oxi ]
-          cmd = "sed"
+          cmd = "sed",
         },
       },
       is_insert_mode = true,    -- start open panel on is_insert_mode
@@ -310,9 +310,9 @@ return {
       local get_icon = utils.get_icon
       return {
         auto_clean_after_session_restore = true,
-        close_if_last_window = true,
+        close_if_last_window = false, -- Geändert zu false
         buffers = {
-          show_unloaded = true
+          show_unloaded = true,
         },
         sources = { "filesystem", "buffers", "git_status" },
         source_selector = {
@@ -361,10 +361,11 @@ return {
             },
           },
         },
-        -- A command is a function that we can assign to a mapping (below)
         commands = {
           system_open = function(state)
-            require("base.utils").open_with_program(state.tree:get_node():get_id())
+            require("base.utils").open_with_program(
+              state.tree:get_node():get_id()
+            )
           end,
           parent_or_close = function(state)
             local node = state.tree:get_node()
@@ -383,15 +384,15 @@ return {
           child_or_open = function(state)
             local node = state.tree:get_node()
             if node.type == "directory" or node:has_children() then
-              if not node:is_expanded() then -- if unexpanded, expand
+              if not node:is_expanded() then
                 state.commands.toggle_node(state)
-              else                           -- if expanded and has children, seleect the next child
+              else
                 require("neo-tree.ui.renderer").focus_node(
                   state,
                   node:get_child_ids()[1]
                 )
               end
-            else -- if not a directory just open it
+            else
               state.commands.open(state)
             end
           end,
@@ -442,10 +443,10 @@ return {
           find_in_dir = function(state)
             local node = state.tree:get_node()
             local path = node:get_id()
-            require("telescope.builtin").find_files {
+            require("telescope.builtin").find_files({
               cwd = node.type == "directory" and path
                   or vim.fn.fnamemodify(path, ":h"),
-            }
+            })
           end,
         },
         window = {
@@ -474,6 +475,12 @@ return {
             event = "neo_tree_buffer_enter",
             handler = function(_) vim.opt_local.signcolumn = "auto" end,
           },
+          {
+            event = "file_opened",
+            handler = function()
+              require("neo-tree.command").execute({ action = "focus" })
+            end,
+          },
         },
       }
     end,
@@ -497,7 +504,7 @@ return {
       },
       provider_selector = function(_, filetype, buftype)
         local function handleFallbackException(bufnr, err, providerName)
-          if type(err) == "string" and err:match "UfoFallbackException" then
+          if type(err) == "string" and err:match("UfoFallbackException") then
             return require("ufo").getFolds(bufnr, providerName)
           else
             return require("promise").reject(err)
@@ -529,9 +536,9 @@ return {
   --  Read their docs to enable cross-session history.
   {
     "AckslD/nvim-neoclip.lua",
-    requires = 'nvim-telescope/telescope.nvim',
+    requires = "nvim-telescope/telescope.nvim",
     event = "User BaseFile",
-    opts = {}
+    opts = {},
   },
 
   --  zen-mode.nvim [distraction free mode]
@@ -564,7 +571,7 @@ return {
   {
     "smoka7/hop.nvim",
     cmd = { "HopWord" },
-    opts = { keys = "etovxqpdygfblzhckisuran" }
+    opts = { keys = "etovxqpdygfblzhckisuran" },
   },
 
   --  nvim-autopairs [auto close brackets]
@@ -598,11 +605,12 @@ return {
       if is_cmp_loaded then
         cmp.event:on(
           "confirm_done",
-          require("nvim-autopairs.completion.cmp").on_confirm_done {
-            tex = false }
+          require("nvim-autopairs.completion.cmp").on_confirm_done({
+            tex = false,
+          })
         )
       end
-    end
+    end,
   },
 
   -- nvim-ts-autotag [auto close html tags]
@@ -613,9 +621,9 @@ return {
     event = "InsertEnter",
     dependencies = {
       "nvim-treesitter/nvim-treesitter",
-      "windwp/nvim-autopairs"
+      "windwp/nvim-autopairs",
     },
-    opts = {}
+    opts = {},
   },
 
   -- lsp_signature.nvim [auto params help]
@@ -628,7 +636,7 @@ return {
       local is_enabled = vim.g.lsp_signature_enabled
       local round_borders = {}
       if vim.g.lsp_round_borders_enabled then
-        round_borders = { border = 'rounded' }
+        round_borders = { border = "rounded" }
       end
       return {
         -- Window mode
@@ -641,17 +649,17 @@ return {
         hint_prefix = "👈 ",
 
         -- Additionally, you can use <space>uH to toggle inlay hints.
-        toggle_key_flip_floatwin_setting = is_enabled
+        toggle_key_flip_floatwin_setting = is_enabled,
       }
     end,
-    config = function(_, opts) require('lsp_signature').setup(opts) end
+    config = function(_, opts) require("lsp_signature").setup(opts) end,
   },
 
   -- nvim-lightbulb [lightbulb for code actions]
   -- https://github.com/kosayoda/nvim-lightbulb
   -- Show a lightbulb where a code action is available
   {
-    'kosayoda/nvim-lightbulb',
+    "kosayoda/nvim-lightbulb",
     enabled = vim.g.codeactions_enabled,
     event = "User BaseFile",
     opts = {
@@ -668,10 +676,10 @@ return {
       sign = { enabled = false },
       virtual_text = {
         enabled = true,
-        text = require("base.utils").get_icon("Lightbulb")
-      }
+        text = require("base.utils").get_icon("Lightbulb"),
+      },
     },
-    config = function(_, opts) require("nvim-lightbulb").setup(opts) end
+    config = function(_, opts) require("nvim-lightbulb").setup(opts) end,
   },
 
   -- distroupdate.nvim [distro update]
@@ -682,19 +690,20 @@ return {
     event = "User BaseFile",
     opts = function()
       local utils = require("base.utils")
-      local config_dir = utils.os_path(vim.fn.stdpath "config" .. "/lua/base/")
+      local config_dir =
+          utils.os_path(vim.fn.stdpath("config") .. "/lua/base/")
       return {
         notify = true,
         reload_files = {
           config_dir .. "1-options.lua",
-          config_dir .. "4-mappings.lua"
+          config_dir .. "4-mappings.lua",
         },
         reload_callback = function()
           vim.cmd(":silent! colorscheme " .. vim.g.default_colorscheme) -- nvim     colorscheme reload command
           vim.cmd(":silent! doautocmd ColorScheme")                     -- heirline colorscheme reload event
-        end
+        end,
       }
-    end
+    end,
   },
 
   -- distroupdate.nvim [distro update]
@@ -707,11 +716,10 @@ return {
       "DistroReadChangelog",
       "DistroReadVersion",
       "DistroUpdate",
-      "DistroUpdateRevert"
+      "DistroUpdateRevert",
     },
     opts = {
-        channel = "stable" -- stable/nightly
-    }
+      channel = "stable", -- stable/nightly
+    },
   },
-
 } -- end of return
