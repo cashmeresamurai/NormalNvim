@@ -20,6 +20,7 @@
 --      -> trigger_event            → Manually trigger an event.
 --      -> which_key_register       → When setting a mapping, add it to whichkey.
 
+-- gleam
 
 local M = {}
 
